@@ -31,13 +31,18 @@ function ranint(min, max) {
 //Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
 //do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
 function generateMap(h, w, closeness) {
+
     for(let i = 0; i < h; i++) {
         map.push([]);
+
         for(let j = 0; j < w; j++) {
             let ranNum = ranint(1, 10);
+
             if(ranNum <= closeness){
+
                 map[i].push(1)
             }else{
+
                 map[i].push(0)
             } 
         }
