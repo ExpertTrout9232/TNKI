@@ -7,6 +7,7 @@
   "author": "Mário Daniel Doskočil",
   "license": "ISC",
   "dependencies": {
-    "socket.io": "^4.7.4"
+    "nodemon": "^3.1.7",
+    "socket.io": "^4.8.0"
   }
 }
