@@ -141,7 +141,7 @@ const join_room = () => {
     const player_name = document.getElementById("player_name").value;
 
     if (!room_name || !player_name) {
-        alert("Vyplňte jméno místnosti a jméno hráče!");
+        alert("Enter a roomname and player name!");
         return;
     }
 
@@ -166,7 +166,7 @@ socket.on("room_joined", (msg) => {
 socket.on("update_players", (msg) => {
     document.getElementById(
         "players_view"
-    ).innerText = `Hráči: ${msg.player_count} / ${msg.max_players}`;
+    ).innerText = `Players: ${msg.player_count} / ${msg.max_players}`;
 });
 
 //TODO: Naimplementuj funkci pro odpojení z lobby při zmáčnkutí tlačítka "zrušit"
