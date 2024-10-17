@@ -16,6 +16,11 @@ import { Server } from "socket.io";
 //     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
 // ];
 
+
+
+
+
+
 let map = [];
 
 
@@ -183,6 +188,26 @@ class Tank {
 const io = new Server(3000, { cors: { origin: '*' } });
 
 //TODO: Vytvoř interval, který bude pravidelně doplňovat náboje
+
+//nefunkcni prijmani map size inputu
+// _____________________________________________
+let mps
+
+io.on('connection', (socket) => {
+    console.log('A user connected');
+  
+    socket.on('inputValue', (inputValue) => {
+      console.log('Received input:', inputValue);
+      mps = inputValue;
+    });
+  
+    socket.on('disconnect', () => {
+      console.log('User disconnected');
+    });
+  });
+
+//______________________________________________
+
 
 io.on("connection", (socket) => {
     socket.on("create_room", (msg) => {

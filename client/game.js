@@ -1,7 +1,10 @@
 const socket = new io("ws://localhost:3000");
 
+const inputElement = document.getElementById('entry');
+const button = document.getElementById('submit-btn');
+
 socket.on("error", (err) => {
-    alert(`Chyba: ${err.message}`);
+    alert(`ERR: ${err.message}`);
 });
 
 const screens = ["home", "lobby", "game"];
@@ -16,6 +19,18 @@ const set_screen = (visible_screen) => {
 };
 
 const scene = document.getElementById("game_view").getContext("2d");
+
+
+button.addEventListener('click', () => {
+
+    const inputValue = inputElement.value;
+  
+    socket.emit('inputValue', inputValue);
+  
+    inputElement.value = '';
+  });
+
+
 
 //* Textury
 const bg = new Image();
@@ -155,11 +170,11 @@ socket.on("room_joined", (msg) => {
     set_screen("lobby");
 
     document.getElementById("room_view").innerText = `
-  Místnost: ${msg.room_name}
+  Room: ${msg.room_name}
   `;
 
     document.getElementById("players_view").innerText = `
-  Hráči: ${msg.player_index + 1} / ${msg.max_players}
+  Players: ${msg.player_index + 1} / ${msg.max_players}
   `;
 });
 

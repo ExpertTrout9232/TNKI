@@ -16,7 +16,7 @@
       <div
         class="bg-slate-900 grid items-center justify-items-center h-[70vh] w-2/3 rounded-2xl"
       >
-        <input id="room_name" placeholder="Místnost" />
+        <input id="room_name" placeholder="Room" />
 
         <select id="max_players">
           <option value="2">2</option>
@@ -24,7 +24,7 @@
           <option value="4">4</option>
         </select>
 
-        <input id="player_name" placeholder="Jméno" />
+        <input id="player_name" placeholder="Name" />
 
         <button
           onclick="join_room()"
@@ -48,6 +48,10 @@
     >
       <h1 id="room_view"></h1>
       <h1 id="players_view"></h1>
+
+      <label for="entry">Enter map size (not finished feature): </label>
+      <input type="text" id="entry" name="entry">
+      <button id="submit-btn" class="bg-yellow-400 w-32 rounded-2xl text-white h-16">Submit</button>
 
       <button
         id="start"
