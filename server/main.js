@@ -1,24 +1,62 @@
 import { Server } from "socket.io";
 
 //* Herní mapa, 1 reprezentzuje překážku, 0 volnou cestu. Můžeš si jí libovolně upravit.
-const map = [
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-    [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-];
+// const map = [
+//     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+//     [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
+//     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//     [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+//     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+//     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+//     [1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1],
+//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+//     [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
+//     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+// ];
 
-//? Napadá tě způsob dynamického generování mapy? Můžeš si jej libovolně doimplementovat!
+let map = [];
+
+
+
+//tohle generuje RANDOM INT, v min a max args zadas range generovani a vyplivne ti to random cele cislo
+function ranint(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+
+
+//Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
+//do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
+function generateMap(h, w, closeness) {
+    for(let i = 0; i < h; i++) {
+        map.push([]);
+        for(let j = 0; j < w; j++) {
+            let ranNum = ranint(1, 10);
+            if(ranNum <= closeness){
+                map[i].push(1)
+            }else{
+                map[i].push(0)
+            } 
+        }
+    }
+    return map;
+}
+
+
+//TODO: dodelat to, aby si hrac mohl zvolit vysku a sirku a closeness mapy
+//TODO: dodelat aby dynamicke generovani mapy probehlo pri kazdem spustenim hry
+
+
+
+
+
+
 
 const shuffle_map = () => {
+    
     return map.slice();
 }
 
@@ -153,6 +191,7 @@ io.on("connection", (socket) => {
         //TODO: Přidej podmínku pro ověření, že přezdívka hráče má maximálně 10 znaků
 
         const admin_tank = new Tank(0, msg.player_name, socket.id);
+        
 
         rooms.set(msg.room_name, new Room(socket.id, admin_tank, msg.max_players, msg.room_name, shuffle_map()));
 
@@ -197,10 +236,11 @@ io.on("connection", (socket) => {
     });
 
     socket.on("start_room", () => {
+        generateMap(12, 12, 3)
         const room = rooms.get(map_id_room.get(socket.id));
 
         //TODO: Přidej podmínku, aby mohl místnost spustit jen admin
-
+        
         room.started = true;
         io.to(room.room_name).emit("room_started", { tanks: [...room.tanks.entries()], map: map, room_name: room.room_name });
     });
