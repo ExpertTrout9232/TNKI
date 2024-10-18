@@ -1,20 +1,5 @@
 import { Server } from "socket.io";
 
-//* Herní mapa, 1 reprezentzuje překážku, 0 volnou cestu. Můžeš si jí libovolně upravit.
-// const map = [
-//     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-//     [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
-//     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1],
-//     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-//     [1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-//     [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0],
-//     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-// ];
 
 
 
@@ -36,24 +21,83 @@ function ranint(min, max) {
 //Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
 //do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
 function generateMap(h, w, closeness) {
+    let map = [];
 
-    for(let i = 0; i < h; i++) {
+    function ranint(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    for (let i = 0; i < h; i++) {
         map.push([]);
-
-        for(let j = 0; j < w; j++) {
+        for (let j = 0; j < w; j++) {
             let ranNum = ranint(1, 10);
-
-            if(ranNum <= closeness){
-
-                map[i].push(1)
-            }else{
-
-                map[i].push(0)
-            } 
+            if (ranNum <= closeness) {
+                map[i].push(1);  
+            } else {
+                map[i].push(0);  
+            
+            }
         }
     }
+
+    
+    function isWalkable(x, y) {
+        return x >= 0 && x < h && y >= 0 && y < w && map[x][y] === 0;
+    }
+
+    function floodFill(x, y, visited) {
+        let stack = [[x, y]];
+        visited[x][y] = true;
+
+        while (stack.length > 0) {
+            let [cx, cy] = stack.pop();
+
+            let neighbors = [
+                [cx - 1, cy], [cx + 1, cy], 
+                [cx, cy - 1], [cx, cy + 1]  
+            ];
+
+            for (let [nx, ny] of neighbors) {
+                if (isWalkable(nx, ny) && !visited[nx][ny]) {
+                    visited[nx][ny] = true;
+                    stack.push([nx, ny]);
+                }
+            }
+        }
+    }
+
+    
+    let visited = Array.from({ length: h }, () => Array(w).fill(false));
+
+    let startX = -1, startY = -1;
+    for (let i = 0; i < h; i++) {
+        for (let j = 0; j < w; j++) {
+            if (map[i][j] === 0) {
+                startX = i;
+                startY = j;
+                break;
+            }
+        }
+        if (startX !== -1) break;
+    }
+
+    if (startX === -1) return map; 
+
+    
+    floodFill(startX, startY, visited);
+
+    for (let i = 0; i < h; i++) {
+        for (let j = 0; j < w; j++) {
+            if (map[i][j] === 0 && !visited[i][j]) {
+                map[i][j] = 0; 
+                floodFill(i, j, visited); 
+            }
+        }
+    }
+
     return map;
 }
+
 
 
 //TODO: dodelat to, aby si hrac mohl zvolit vysku a sirku a closeness mapy
