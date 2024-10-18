@@ -273,7 +273,7 @@ document.onkeydown = (e) => {
     }
 
     //? Líbí se ti střelba při klávese "space"? Pokud ne, můžeš ji libovolně měnit!
-    if (e.code == "Space") {
+    if (e.code == "q") {
         e.preventDefault();
         socket.emit("update_shoot");
     }
