@@ -19,24 +19,25 @@ import { Server } from "socket.io";
 
 
 
-
+// ????
 let map = [];
 
 
-
+// ??
 //tohle generuje RANDOM INT, v min a max args zadas range generovani a vyplivne ti to random cele cislo
 function ranint(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 
-
+// TODO implmentace toho flood fillu nefunguje, mapa neni vsude pruchozi
 
 //Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
 //do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
 function generateMap(h, w, closeness) {
     let map = [];
 
+    // ??????? proc to je tu dvakrat jeste na radku 28
     function ranint(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -194,7 +195,8 @@ class Tank {
     //! Místo této funkce
     //TODO: Vytvoř metodu, která ověří správnost souřadnic
     validate_move (next_x, next_y) {
-        if (map[next_y][next_x] == 1) {
+        console.log(map);
+        if (next_y < 0 || next_y >= map.length || next_x < 0 || next_x >= map[0].length || map[next_y][next_x] == 1) {
             return false;
         }
         return true;
@@ -327,7 +329,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("start_room", () => {
-        generateMap(12, 12, 3)
+        map = generateMap(12, 12, 3);
         const room = rooms.get(map_id_room.get(socket.id));
 
         //TODO: Přidej podmínku, aby mohl místnost spustit jen admin
