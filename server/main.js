@@ -195,7 +195,6 @@ class Tank {
     //! Místo této funkce
     //TODO: Vytvoř metodu, která ověří správnost souřadnic
     validate_move (next_x, next_y) {
-        console.log(map);
         if (next_y < 0 || next_y >= map.length || next_x < 0 || next_x >= map[0].length || map[next_y][next_x] == 1) {
             return false;
         }
