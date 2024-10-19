@@ -1,5 +1,9 @@
 import { Server } from "socket.io";
 
+
+//NASLEDUJICI COMMENT JE POUZE PRIKLAD JAK VYPADA MAP ARRAY
+
+
 //* Herní mapa, 1 reprezentzuje překážku, 0 volnou cestu. Můžeš si jí libovolně upravit.
 // const map = [
 //     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
@@ -19,45 +23,38 @@ import { Server } from "socket.io";
 
 
 
-// ????
 let map = [];
+// ????
+// ^^ coe more
 
 
 // ??
+//^^ kamo coe
+
+
 //tohle generuje RANDOM INT, v min a max args zadas range generovani a vyplivne ti to random cele cislo
 function ranint(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 
-// TODO implmentace toho flood fillu nefunguje, mapa neni vsude pruchozi
+
 
 //Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
 //do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
 function generateMap(h, w, closeness) {
-    let map = [];
+    
 
     // ??????? proc to je tu dvakrat jeste na radku 28
     function ranint(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    for (let i = 0; i < h; i++) {
-        map.push([]);
-        for (let j = 0; j < w; j++) {
-            let ranNum = ranint(1, 10);
-            if (ranNum <= closeness) {
-                map[i].push(1);  
-            } else {
-                map[i].push(0);  
-            
-            }
-        }
-    }
+    
 
     
     function isWalkable(x, y) {
-        return x >= 0 && x < h && y >= 0 && y < w && map[x][y] === 0;
+        return x >= 0 && x < h && y >= 0 && y < w && local_map[x][y] === 0;
     }
 
     function floodFill(x, y, visited) {
@@ -81,42 +78,99 @@ function generateMap(h, w, closeness) {
         }
     }
 
-    
-    let visited = Array.from({ length: h }, () => Array(w).fill(false));
 
-    let startX = -1, startY = -1;
-    for (let i = 0; i < h; i++) {
-        for (let j = 0; j < w; j++) {
-            if (map[i][j] === 0) {
-                startX = i;
-                startY = j;
-                break;
+
+    //initializace pormennych
+    let local_map = [];
+    let generate = true;
+
+
+    //cyklus pro: [Vygenerovat mapu, provest floodfill, checknout jestli byl floodfill uspesny a pokud ne tak se floodfill zopakuje a pama se regeneruje]
+    while (generate) {
+
+        // reset promennych  
+        generate = false
+        local_map = [];
+    
+    
+
+
+   
+
+        //map generation
+        for (let i = 0; i < h; i++) {
+            local_map.push([]);
+            for (let j = 0; j < w; j++) {
+                let ranNum = ranint(1, 10);
+                if (ranNum <= closeness) {
+                    local_map[i].push(1);  
+                } else {
+                    local_map[i].push(0);  
+                
+                }
             }
         }
-        if (startX !== -1) break;
-    }
 
-    if (startX === -1) return map; 
+        let visited = Array.from({ length: h }, () => Array(w).fill(false));
 
-    
-    floodFill(startX, startY, visited);
 
-    for (let i = 0; i < h; i++) {
-        for (let j = 0; j < w; j++) {
-            if (map[i][j] === 0 && !visited[i][j]) {
-                map[i][j] = 0; 
-                floodFill(i, j, visited); 
+        // rict floodfillu kde ma zacit
+        let startX = -1, startY = -1;
+        for (let i = 0; i < h; i++) {
+            for (let j = 0; j < w; j++) {
+                if (local_map[i][j] === 0) {
+                    startX = i;
+                    startY = j;
+                    break;
+                }
+            }
+            if (startX !== -1) break;
+        }
+
+
+        if (startX === -1) return local_map; 
+
+        
+        floodFill(startX, startY, visited);
+
+
+        // checkuje se jestli byl floodfill usepesny
+        for (let i = 0; i < h; i++) {
+            for (let j = 0; j < w; j++) {
+                if (local_map[i][j] === 0 && !visited[i][j]) {
+                    generate = true;
+                
+                }
             }
         }
+
+
+
+    
+
+    
+        // vypis vsech listu pro kotrolu a debug
+        console.log("[INFO] [VAR_MAP]: \n");
+    
+        for(let a = 0; a < h; a++) {
+            console.log("[" + local_map[a] + "]\n");
+        }
+    
+        console.log("[INFO] [VAR_VISITED]: \n")
+    
+        for(let b = 0; b < h; b++) {
+            console.log("[" + visited[b] + "]\n");
+        }
+
     }
 
-    return map;
+
+    return local_map;
 }
 
 
 
 //TODO: dodelat to, aby si hrac mohl zvolit vysku a sirku a closeness mapy
-//TODO: dodelat aby dynamicke generovani mapy probehlo pri kazdem spustenim hry
 
 
 
