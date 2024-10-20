@@ -32,6 +32,35 @@ let map = [];
 //^^ kamo coe
 
 
+// funkce pro lepsi logovani
+function info(type, varfunc, vfname, message) {
+    let final;
+    if (type == "info" || type == "INFO" || type == "inf") {
+        final = "[INFO] ";
+    }
+    if (type == "warn" || type == "WARN" || type == "war" || type == "warning" || type == "WARNING") {
+        final = "[WARN] ";
+    }
+    if (type == "err" || type == "ERR" || type == "error" || type == "ERROR" || type == "fatal" || type == "FATAL") {
+        final = "[ERR] ";
+    }
+
+    if (varfunc == "func" || varfunc == "FUNC") {
+        final = final + "[FUNC ";
+    }
+    if (varfunc == "var" || varfunc == "VAR") {
+        final = final + "[VAR ";
+    }
+    if (varfunc == "") {
+        final = final + "[";
+    }
+    final = final + vfname + "] " + message;
+
+    console.log(final);
+}
+
+
+
 //tohle generuje RANDOM INT, v min a max args zadas range generovani a vyplivne ti to random cele cislo
 function ranint(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -81,15 +110,23 @@ function generateMap(h, w, closeness) {
 
 
     //initializace pormennych
+    info("info", "func", "generateMap", "Initializating variables...");
     let local_map = [];
     let generate = true;
+    let cycles = 0;
 
 
     //cyklus pro: [Vygenerovat mapu, provest floodfill, checknout jestli byl floodfill uspesny a pokud ne tak se floodfill zopakuje a pama se regeneruje]
     while (generate) {
 
+        if (cycles > 0) {
+            info("warn", "func", "generateMap", "Floodfill failed, regenerating map...");
+            console.log("\n")
+        }
+
+        info("info", "func", "generateMap", "Starting generation...");
         // reset promennych  
-        generate = false
+        generate = false;
         local_map = [];
     
     
@@ -98,6 +135,7 @@ function generateMap(h, w, closeness) {
    
 
         //map generation
+        info("info", "func", "generateMap", "Generating map...");
         for (let i = 0; i < h; i++) {
             local_map.push([]);
             for (let j = 0; j < w; j++) {
@@ -115,6 +153,7 @@ function generateMap(h, w, closeness) {
 
 
         // rict floodfillu kde ma zacit
+        info("info", "func", "generateMap", "Setting up floodfill");
         let startX = -1, startY = -1;
         for (let i = 0; i < h; i++) {
             for (let j = 0; j < w; j++) {
@@ -130,7 +169,7 @@ function generateMap(h, w, closeness) {
 
         if (startX === -1) return local_map; 
 
-        
+        info("info", "func", "generateMap", "Running floodfill");
         floodFill(startX, startY, visited);
 
 
@@ -139,30 +178,32 @@ function generateMap(h, w, closeness) {
             for (let j = 0; j < w; j++) {
                 if (local_map[i][j] === 0 && !visited[i][j]) {
                     generate = true;
-                
+                    break;
                 }
+                
             }
+            
         }
+        
+        
 
 
 
     
 
     
-        // vypis vsech listu pro kotrolu a debug
-        console.log("[INFO] [VAR_MAP]: \n");
-    
-        for(let a = 0; a < h; a++) {
-            console.log("[" + local_map[a] + "]\n");
-        }
-    
-        console.log("[INFO] [VAR_VISITED]: \n")
-    
-        for(let b = 0; b < h; b++) {
-            console.log("[" + visited[b] + "]\n");
-        }
-
+        
+        cycles += 1;
     }
+    info("info", "func", "generateMap", "Floodfill finished sucessfully");
+
+    // vypis vsech listu pro kotrolu a debug
+    console.log("[INFO] [VAR map]: \n");
+    
+    for(let a = 0; a < h; a++) {
+        console.log("[" + local_map[a] + "]");
+    }
+
 
 
     return local_map;
