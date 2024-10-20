@@ -139,8 +139,16 @@ const create_room = () => {
     const max_players = document.getElementById("max_players").value;
     const player_name = document.getElementById("player_name").value;
 
+    socket.on('player_name_updated', (msg) => {
+        console.log('Updated player name received:', msg.player_name);
+    });
+
+    socket.on('room_name_updated', (msg) => {
+        console.log('Updated room name received:', msg.room_name);
+    });
+
     if (!room_name || !max_players || !player_name) {
-        alert("Vyplňte všechna pole!");
+        alert("Enter something in all entries!");
         return;
     }
 

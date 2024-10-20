@@ -375,6 +375,45 @@ io.on("connection", (socket) => {
 
         //TODO: Přidej podmínku pro ověření, že název místnosti má maximálně 10 znaků
 
+        //do teto promenne se ulozi delka jmena hrace a delka room name a roomname a playername se rozdeli do listu na pismena
+        let name_len;
+        let name_list;
+        let final_pn = "";
+        name_len = msg.player_name.length;
+        name_list = msg.player_name.split('');
+
+        let roomname_len;
+        let roomname_list;
+        let final_rn = "";
+        roomname_len = msg.room_name.length;
+        roomname_list = msg.room_name.split('');
+
+
+
+        //Pokud je delka jmena hrace nebo nazev roomky delsi nez 12, program vypise error
+        if (name_len > 12) {
+            socket.emit("error", { message: "Player name can be maximum 12 characters long"});
+            info("ERR", "var", "player_name", "Player name is too long (its longer than 12 characters)");
+            for(let ab = 0; ab < 12; ab++) {
+                final_pn = final_pn + name_list[ab];
+
+            }
+            msg.player_name = final_pn;
+            io.emit('player_name_updated', msg);
+            info("info", "", "IO", "Updated player name for the invalid username client")
+        }
+
+        if(roomname_len > 12) {
+            socket.emit("error", { message: "Room name can be maximum 12 characters long"});
+            info("ERR", "var", "room_name", "Room name is too long (its longer than 12 characters)");
+            for(let ac = 0; ac < 12; ac++) {
+                final_rn = final_rn + roomname_list[ac];
+
+            }
+            msg.room_name = final_rn;
+            io.emit('room_name_updated', msg);
+            info("info", "", "IO", "Updated room name for the invalid roomname client host")
+        }
         //TODO: Přidej podmínku pro ověření, že přezdívka hráče má maximálně 10 znaků
 
         const admin_tank = new Tank(0, msg.player_name, socket.id);
