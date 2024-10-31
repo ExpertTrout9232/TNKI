@@ -374,48 +374,23 @@ io.on("connection", (socket) => {
             return;
         }
 
-        //TODO: Přidej podmínku pro ověření, že název místnosti má maximálně 10 znaků
-
-        //do teto promenne se ulozi delka jmena hrace a delka room name a roomname a playername se rozdeli do listu na pismena
-        let name_len;
-        let name_list;
-        let final_pn = "";
-        name_len = msg.player_name.length;
-        name_list = msg.player_name.split('');
-
-        let roomname_len;
-        let roomname_list;
-        let final_rn = "";
-        roomname_len = msg.room_name.length;
-        roomname_list = msg.room_name.split('');
-
-
-
         //Pokud je delka jmena hrace nebo nazev roomky delsi nez 12, program vypise error
-        if (name_len > 12) {
-            socket.emit("error", { message: "Player name can be maximum 12 characters long"});
-            info("ERR", "var", "player_name", "Player name is too long (its longer than 12 characters)");
-            for(let ab = 0; ab < 12; ab++) {
-                final_pn = final_pn + name_list[ab];
 
-            }
-            msg.player_name = final_pn;
+        if (msg.player_name.length > 12) {
+            socket.emit("error", { message: "The player name must not be longer than 12 characters!" });
+            info("ERR", "var", "player_name", "Player name is too long (it's longer than 12 characters)"); // gramatika ty nic nerika ???? ja si totiz vsymam detailu, jsme tajni agent 007 fbi cia, naserte sy
+            msg.player_name = msg.player_name.slice(0, 12);
             io.emit('player_name_updated', msg);
-            info("info", "", "IO", "Updated player name for the invalid username client")
+            info("info", "", "IO", "Updated player name for the invalid username client"); // invalidni vozik reference
         }
 
-        if(roomname_len > 12) {
-            socket.emit("error", { message: "Room name can be maximum 12 characters long"});
-            info("ERR", "var", "room_name", "Room name is too long (its longer than 12 characters)");
-            for(let ac = 0; ac < 12; ac++) {
-                final_rn = final_rn + roomname_list[ac];
-
-            }
-            msg.room_name = final_rn;
+        if (msg.room_name.length > 12) {
+            socket.emit("error", { message: "The room name must not be longer than 12 characters!" });
+            info("ERR", "var", "room_name", "Room name is too long (it's longer than 12 characters)"); // gramatika ty nic nerika ???? ja si totiz vsymam detailu, jsme tajni agent 007 fbi cia, naserte sy
+            msg.room_name = msg.room_name.slice(0, 12);
             io.emit('room_name_updated', msg);
-            info("info", "", "IO", "Updated room name for the invalid roomname client host")
+            info("info", "", "IO", "Updated room name for the invalid roomname client host"); // invalidni vozik reference
         }
-        //TODO: Přidej podmínku pro ověření, že přezdívka hráče má maximálně 10 znaků
 
         const admin_tank = new Tank(0, msg.player_name, socket.id);
         
@@ -445,7 +420,13 @@ io.on("connection", (socket) => {
             return;
         }
 
-        //TODO: Přidej podmínku pro ověření, že přezdívka hráče má maximálně 10 znaků
+        if (msg.player_name.length > 12) {
+            socket.emit("error", { message: "The player name must not be longer than 12 characters!" });
+            info("ERR", "var", "player_name", "Player name is too long (it's longer than 12 characters)"); // gramatika ty nic nerika ???? ja si totiz vsymam detailu, jsme tajni agent 007 fbi cia, naserte sy
+            msg.player_name = msg.player_name.slice(0, 12);
+            io.emit('player_name_updated', msg);
+            info("info", "", "IO", "Updated player name for the invalid username client"); // invalidni vozik reference
+        }
 
         const new_tank = new Tank(room.tanks_length(), msg.player_name, socket.id);
 
