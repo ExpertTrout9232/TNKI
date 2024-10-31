@@ -26,11 +26,12 @@ import { Server } from "socket.io";
 let map = [];
 // ????
 // ^^ coe more
+// Mluv CESKY VOLE jsme v cesku ne
 
 
 // ??
 //^^ kamo coe
-
+// ^^^^^^ ????????????????
 
 // funkce pro lepsi logovani
 function info(type, varfunc, vfname, message) {
