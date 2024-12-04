@@ -73,21 +73,15 @@ function ranint(min, max) {
 //Funkce na generovani mapy, do argumentu zadas vysku a sirku (nemusis pocitat s nulou takze to je presne to co tam zadas)
 //do closeness zadas jak ma ta mapa byt zahustena (cim vetsi cislo, tim vic barikad bude, maximalni hodnota closeness je 10, jakmile hodnota presahne 10, nic uz se menit nebude)
 function generateMap(h, w, closeness) {
-    
-
-    // ??????? proc to je tu dvakrat jeste na radku 28
     function ranint(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    
-
-    
-    function isWalkable(x, y) {
+    function isWalkable(x, y, local_map) {
         return x >= 0 && x < h && y >= 0 && y < w && local_map[x][y] === 0;
     }
 
-    function floodFill(x, y, visited) {
+    function floodFill(x, y, visited, local_map) {
         let stack = [[x, y]];
         visited[x][y] = true;
 
@@ -96,11 +90,11 @@ function generateMap(h, w, closeness) {
 
             let neighbors = [
                 [cx - 1, cy], [cx + 1, cy], 
-                [cx, cy - 1], [cx, cy + 1]  
+                [cx, cy - 1], [cx, cy + 1]
             ];
 
             for (let [nx, ny] of neighbors) {
-                if (isWalkable(nx, ny) && !visited[nx][ny]) {
+                if (isWalkable(nx, ny, local_map) && !visited[nx][ny]) {
                     visited[nx][ny] = true;
                     stack.push([nx, ny]);
                 }
@@ -108,53 +102,32 @@ function generateMap(h, w, closeness) {
         }
     }
 
-
-
-    //initializace pormennych
-    info("info", "func", "generateMap", "Initializating variables...");
     let local_map = [];
     let generate = true;
     let cycles = 0;
 
-
-    //cyklus pro: [Vygenerovat mapu, provest floodfill, checknout jestli byl floodfill uspesny a pokud ne tak se floodfill zopakuje a pama se regeneruje]
-    while (generate) {
-
-        if (cycles > 0) {
-            info("warn", "func", "generateMap", "Floodfill failed, regenerating map...");
-            console.log("\n")
-        }
-
-        info("info", "func", "generateMap", "Starting generation...");
-        // reset promennych  
-        generate = false;
-        local_map = [];
-    
-    
-
-
-   
-
-        //map generation
-        info("info", "func", "generateMap", "Generating map...");
-        for (let i = 0; i < h; i++) {
-            local_map.push([]);
-            for (let j = 0; j < w; j++) {
-                let ranNum = ranint(1, 10);
-                if (ranNum <= closeness) {
-                    local_map[i].push(1);  
-                } else {
-                    local_map[i].push(0);  
-                
-                }
+    // Initial map generation
+    info("info", "FUNC", "generatingMap", "Generating map array...")
+    for (let i = 0; i < h; i++) {
+        local_map.push([]);
+        for (let j = 0; j < w; j++) {
+            let ranNum = ranint(1, 10);
+            if (ranNum <= closeness) {
+                local_map[i].push(1);  // Obstacle
+            } else {
+                local_map[i].push(0);  // Walkable path
             }
         }
+    }
 
+    // Adjust map until it is fully connected
+    info("info", "FUNC", "generatingMap", "Finishing map...")
+    while (generate) {
+        generate = false;
         let visited = Array.from({ length: h }, () => Array(w).fill(false));
 
-
-        // rict floodfillu kde ma zacit
-        info("info", "func", "generateMap", "Setting up floodfill");
+        // Find a starting point for flood fill
+        info("info", "FUNC", "generatingMap", "Setting up floodfill...")
         let startX = -1, startY = -1;
         for (let i = 0; i < h; i++) {
             for (let j = 0; j < w; j++) {
@@ -167,48 +140,48 @@ function generateMap(h, w, closeness) {
             if (startX !== -1) break;
         }
 
+        if (startX === -1) return local_map; // No walkable tiles, return as-is
 
-        if (startX === -1) return local_map; 
+        // Perform flood fill
+        info("info", "FUNC", "generatingMap", "Runnning floodfill...")
+        floodFill(startX, startY, visited, local_map);
 
-        info("info", "func", "generateMap", "Running floodfill");
-        floodFill(startX, startY, visited);
-
-
-        // checkuje se jestli byl floodfill usepesny
+        // Identify disconnected areas and remove obstacles to connect them
+        info("info", "FUNC", "generatingMap", "Correcting map...")
         for (let i = 0; i < h; i++) {
             for (let j = 0; j < w; j++) {
                 if (local_map[i][j] === 0 && !visited[i][j]) {
-                    generate = true;
-                    break;
+                    // Remove a nearby obstacle to connect this region
+                    let neighbors = [
+                        [i - 1, j], [i + 1, j],
+                        [i, j - 1], [i, j + 1]
+                    ];
+                    for (let [nx, ny] of neighbors) {
+                        if (nx >= 0 && nx < h && ny >= 0 && ny < w && local_map[nx][ny] === 1) {
+                            local_map[nx][ny] = 0;  // Remove obstacle
+                            generate = true; // Re-run flood fill to verify connectivity
+                            break;
+                        }
+                    }
                 }
-                
             }
-            
         }
-        
-        
 
-
-
-    
-
-    
-        
         cycles += 1;
+        if (cycles > h * w) {
+            info("err", "FUNC", "generateMap", "Too many cycles, something might be wrong")
+            break;
+        }
     }
-    info("info", "func", "generateMap", "Floodfill finished sucessfully");
 
-    // vypis vsech listu pro kotrolu a debug
     console.log("[INFO] [VAR map]: \n");
-    
-    for(let a = 0; a < h; a++) {
+    for (let a = 0; a < h; a++) {
         console.log("[" + local_map[a] + "]");
     }
 
-
-
     return local_map;
 }
+
 
 
 
@@ -347,27 +320,23 @@ const io = new Server(3000, { cors: { origin: '*' } });
 
 //TODO: Vytvoř interval, který bude pravidelně doplňovat náboje
 
-//nefunkcni prijmani map size inputu
-// _____________________________________________
 let mps
 
-io.on('connection', (socket) => {
+
+
+
+io.on("connection", (socket) => {
     console.log('A user connected');
   
     socket.on('inputValue', (inputValue) => {
-      console.log('Received input:', inputValue);
+      info("info", "var", "inputValue", inputValue);
       mps = inputValue;
     });
   
     socket.on('disconnect', () => {
       console.log('User disconnected');
     });
-  });
 
-//______________________________________________
-
-
-io.on("connection", (socket) => {
     socket.on("create_room", (msg) => {
         if (rooms.has(msg.room_name)) {
             socket.emit("error", { message: "Room with this name already exists" });
@@ -391,6 +360,7 @@ io.on("connection", (socket) => {
             io.emit('room_name_updated', msg);
             info("info", "", "IO", "Updated room name for the invalid roomname client host"); // invalidni vozik reference
         }
+        
 
         const admin_tank = new Tank(0, msg.player_name, socket.id);
         
@@ -444,7 +414,15 @@ io.on("connection", (socket) => {
     });
 
     socket.on("start_room", () => {
-        map = generateMap(12, 12, 3);
+
+        let he = 50 * mps;
+        let wi = 50 * mps;
+
+        socket.emit('setDimensions', { width: he, height: wi });
+
+        info("info", "var", "mps", mps);
+        map = generateMap(mps, mps, 3);
+
         const room = rooms.get(map_id_room.get(socket.id));
 
         //TODO: Přidej podmínku, aby mohl místnost spustit jen admin

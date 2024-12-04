@@ -7,6 +7,21 @@ socket.on("error", (err) => {
     alert(`ERR: ${err.message}`);
 });
 
+let wi;
+let he;
+
+
+socket.on('setDimensions', (dimensions) => {
+    const element = document.getElementById('game_view');
+    element.style.width = `${dimensions.width}px`;
+    element.style.height = `${dimensions.height}px`;
+    element.width = dimensions.width;
+    element.height = dimensions.height;
+    wi = dimensions.width;
+    he = dimensions.height;
+});
+
+
 const screens = ["home", "lobby", "game"];
 
 const set_screen = (visible_screen) => {
@@ -76,18 +91,18 @@ class Game {
     }
 
     draw_bg() {
-        scene.drawImage(bg, 0, 0, 600, 600);
+        scene.drawImage(bg, 0, 0, scene.canvas.width, scene.canvas.height);
     }
-
+    
     draw_map() {
+        const tileSize = scene.canvas.width / this.map[0].length; // Assuming square tiles
         this.map.forEach((row, i) => {
             row.forEach((baricade, j) => {
                 if (baricade) {
-                    scene.drawImage(baricade_texture, j * 50, i * 50, 50, 50);
+                    scene.drawImage(baricade_texture, j * tileSize, i * tileSize, tileSize, tileSize);
                 }
             });
         });
-
     }
 
     //TODO: Vytvoř metodu pro rotaci tanku
@@ -205,6 +220,7 @@ const set_indicator = (index, value, type) => {
         indicator.innerHTML += `<img src="assets/${type}.png" class="w-8 h-8" />`;
     }
 };
+
 
 socket.on("room_started", (msg) => {
     set_screen("game");
